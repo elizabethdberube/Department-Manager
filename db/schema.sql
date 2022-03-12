@@ -3,19 +3,19 @@ CREATE DATABASE department_db;
 
 USE department_db;
 
-CREATE TABLE department (
+CREATE TABLE departments (
 id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 department_name VARCHAR(30)
 
 );
 
-CREATE TABLE  role (
+CREATE TABLE  roles (
 id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 title VARCHAR(30),
-salary
+salary DECIMAL,
 department_id INT,
 FOREIGN KEY (department_id)
-REFERENCES department(id)
+REFERENCES departments(id)
 ON DELETE SET NULL
 );
 
@@ -31,5 +31,5 @@ ON DELETE SET NULL
 );
 
 DESCRIBE department;
-DESCRIBE role;
+DESCRIBE roles;
 DESCRIBE employees;
