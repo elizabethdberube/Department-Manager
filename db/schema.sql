@@ -26,10 +26,7 @@ last_name VARCHAR(30),
 role_id INT,
 manager_id INT,
 FOREIGN KEY (role_id)
-REFERENCES role (id)
+REFERENCES roles (id)
 ON DELETE SET NULL
 );
 
-DESCRIBE department;
-DESCRIBE roles;
-DESCRIBE employees;
