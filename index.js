@@ -31,43 +31,40 @@ const mainLoop = () => {
             if (selectToDo == "'view all departments") {
                 viewAllDepartments().then(mainLoop);
 
-
             }
 
             else if (selectToDo == "view all roles") {
                 viewAllRoles().then(mainLoop);
-
 
             }
 
             else if (selectToDo == "view all employees") {
                 viewAllEmployees().then(mainLoop);
 
-
             }
 
             else if (selectToDo == "add a department") {
-                viewAllDepartments().then(mainLoop);
+                addDepartment().then(mainLoop);
 
             }
-            else if (selectToDo == "add a role") {
-                ().then(mainLoop);
 
+            else if (selectToDo == "add a role") {
+                addRole().then(mainLoop);
 
             }
 
             else if (selectToDo == "add an employee") {
-                ();
+                addEmployee();
 
             }
-            else if (selectToDo == "update an employee role") {
-                o().then(mainLoop);
 
+            else if (selectToDo == "update an employee role") {
+                updateEmployeeRole().then(mainLoop);
 
             }
 
             else if (selectToDo == "quit") {
-                e();
+                console.log("The End");
 
                 return;
             }
@@ -91,8 +88,28 @@ const viewAllRoles = () => {
 }
 
 const viewAllEmployees = () => {
-    db.query('SELECT * FROM employees', function (err, results) {
+    db.query('SELECT employees.id AS employee, employees.first_name AS First-Name, employees.last_name AS Last-Name, roles.title AS Title, departments.department_name AS Department, roles.salary As Salaries, employees.manager_id AS Manager FROM employees JOIN roles ON employees.id = roles.id JOIN departments ON departments.id = roles.id;', function (err, results) {
         console.log(results);
     });
 
 }
+
+const addDepartment = () => {
+
+
+    inquirer.prompt([
+        {
+            type: 'input',
+            message: 'What department would you like to add?',
+            name: 'newDepartment',
+        }
+    ])
+        .then((newDepartment) => {
+
+
+
+
+        });
+}
+
+
