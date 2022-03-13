@@ -15,14 +15,14 @@ VALUES ("Office Manager", 85000.00, 1),
        ("Lead Technician", 65000.00, 3),
        ("Billing", 50000.00, 4);
 
-INSERT INTO employees (first_name, last_name, role_id, manager_id)
-VALUES ("George", "Smith", 10, null),
-       ("Rajesh", "Shah", 20, 150),
-       ("Susan", "Ellison", 30, 150),
-       ("David", "Emerson", 40, 150),
-       ("Jennifer", "Day", 50, 175),
-       ("Terri", "Adel", 50, 175),
-       ("Tom", "Walk", 60, null),
-        ("Sarah", "Bell", 70, 150);
+INSERT INTO employees (first_name, last_name, manager_id, role_id)
+VALUES ("George", "Smith", null),
+       ("Rajesh", "Shah", "George Smith"),
+       ("Susan", "Ellison", "George Smith"),
+       ("David", "Emerson", "George Smith"),
+       ("Jennifer", "Day", "Tom Walk",
+       ("Terri", "Adel", "Tom Walk"),
+       ("Tom", "Walk", null),
+        ("Sarah", "Bell", );
 
 

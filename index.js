@@ -40,8 +40,14 @@ const mainLoop = () => {
 
             }
 
+            else if (selectToDo == "view all employees") {
+                viewAllEmployees().then(mainLoop);
+
+
+            }
+
             else if (selectToDo == "add a department") {
-                ();
+                viewAllDepartments().then(mainLoop);
 
             }
             else if (selectToDo == "add a role") {
@@ -78,7 +84,14 @@ const viewAllDepartments = () => {
 
 
 const viewAllRoles = () => {
-    db.query('SELECT * FROM roles', function (err, results) {
+    db.query('SELECT roles.title AS titles, roles.id AS roles-ID, departments.department_name AS Department, roles.salary As Salaries FROM roles JOIN departments ON roles.title = departments.id;', function (err, results) {
+        console.log(results);
+    });
+
+}
+
+const viewAllEmployees = () => {
+    db.query('SELECT * FROM employees', function (err, results) {
         console.log(results);
     });
 
