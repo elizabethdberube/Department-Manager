@@ -14,72 +14,23 @@ const db = mysql.createConnection({
     console.log('Connected to database.')
 );
 
-db.connect(function (err) {
-    if (err) {
-        return console.error('error:' + err.message);
-    }
-});
-
-//the main loop that controls the flow of the whole thing.
-const mainLoop = () => {
-
-
-    inquirer.prompt([
-        {
-            type: 'list',
-            message: 'What would like to do?',
-            choices: ['view all departments', 'view all roles', 'view all employees', 'add a department', 'add a role', 'add an employee', 'update an employee role', 'quit'],
-            name: 'selectToDo',
-
+const serverConnect = () => {
+    db.connect(function (err) {
+        if (err) {
+            return console.error('error:' + err.message);
         }
-    ])
-        .then(({ selectToDo }) => {
-            if (selectToDo == "'view all departments") {
-                viewAllDepartments().then(mainLoop);
 
-            }
-
-            else if (selectToDo == "view all roles") {
-                viewAllRoles().then(mainLoop);
-
-            }
-
-            else if (selectToDo == "view all employees") {
-                viewAllEmployees().then(mainLoop);
-
-            }
-
-            else if (selectToDo == "add a department") {
-                addDepartment().then(mainLoop);
-
-            }
-
-            else if (selectToDo == "add a role") {
-                addToRoles().then(mainLoop);
-
-            }
-
-            else if (selectToDo == "add an employee") {
-                addToEmployees();
-
-            }
-
-            else if (selectToDo == "update an employee role") {
-                updateEmployeeRole().then(mainLoop);
-
-            }
-
-            else if (selectToDo == "quit") {
-                console.log("The End");
-
-                return;
-            }
-        });
+    });
 }
+
 
 const viewAllDepartments = () => {
     db.query('SELECT * FROM departments', function (err, results) {
+        if (err) {
+            console.log(err);
+        }
         console.table(results);
+
     });
 
 }
@@ -99,8 +50,7 @@ const viewAllEmployees = () => {
 }
 
 const addDepartment = () => {
-
-    inquirer.prompt([
+    return inquirer.prompt([
         {
             type: 'input',
             message: 'What department would you like to add?',
@@ -119,7 +69,7 @@ const addDepartment = () => {
 
 const addToRoles = () => {
 
-    inquirer.prompt([
+    return inquirer.prompt([
         {
             type: 'input',
             message: 'What is the title of this role?',
@@ -143,6 +93,9 @@ const addToRoles = () => {
         //TODO test this query
         //TODO this should add the department_id when they enter the department name
         .then(({ newRole, newSalary, dept }) => {
+            db.query(`SELECT id FROM departments WHERE department_name = ${dept};`, function (err, results) {
+                console.log(results);
+            });
 
             db.query(`INSERT INTO roles (id, ${newRole}, ${newSalary}, ${dept})`, function (err, results) {
                 console.table(results);
@@ -154,7 +107,7 @@ const addToRoles = () => {
 
 const addToEmployees = () => {
 
-    inquirer.prompt([
+    return inquirer.prompt([
         {
             type: 'input',
             message: 'What is the employee\'s first name?',
@@ -197,7 +150,7 @@ const addToEmployees = () => {
 //TODO write this function. User can update an employee role then they select an employee to update and their new role and this information is updated in the database by id
 const updateEmployeeRole = () => {
 
-    inquirer.prompt([
+    return inquirer.prompt([
         {
             type: 'input',
             message: 'What is the employee\'s role/title?',
@@ -225,6 +178,63 @@ const updateEmployeeRole = () => {
         });
 };
 
+//the main loop that controls the flow of the whole thing.
+const mainLoop = () => {
 
 
-mainLoop();
+    inquirer.prompt([
+        {
+            type: 'list',
+            message: 'What would like to do?',
+            choices: ['view all departments', 'view all roles', 'view all employees', 'add a department', 'add a role', 'add an employee', 'update an employee role', 'quit'],
+            name: 'selectToDo',
+
+        }
+    ])
+        .then(({ selectToDo }) => {
+            if (selectToDo == 'view all departments') {
+                viewAllDepartments().then(mainLoop);
+
+            }
+
+            else if (selectToDo == "view all roles") {
+                viewAllRoles().then(mainLoop);
+
+            }
+
+            else if (selectToDo == "view all employees") {
+                viewAllEmployees().then(mainLoop);
+
+            }
+
+            else if (selectToDo == "add a department") {
+                addDepartment().then(mainLoop);
+
+            }
+
+            else if (selectToDo == "add a role") {
+                addToRoles().then(mainLoop);
+
+            }
+
+            else if (selectToDo == "add an employee") {
+                addToEmployees();
+
+            }
+
+            else if (selectToDo == "update an employee role") {
+                updateEmployeeRole().then(mainLoop);
+
+            }
+
+            else if (selectToDo == "quit") {
+                console.log("The End");
+
+                return;
+            }
+        });
+}
+
+serverConnect().then(() => {
+    mainLoop();
+});
