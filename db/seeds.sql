@@ -17,7 +17,7 @@ VALUES (1, "Office Manager", 85000.00, 1),
        (5, "Technician", 55000.00, 3),
        (6, "Technician", 55000.00, 3),
        (7, "Lead Technician", 65000.00, 3),
-       (8, "Billing", 50000.00, 4);
+       (8, "Accountant", 50000.00, 4);
 
 INSERT INTO employees (id, first_name, last_name, manager_id, role_id)
 VALUES (1, "George", "Smith", NULL, 1),
@@ -27,6 +27,6 @@ VALUES (1, "George", "Smith", NULL, 1),
        (5, "Jennifer", "Day", 7, 5),
        (6, "Terri", "Adel", 7, 6),
        (7, "Tom", "Walk", NULL, 7),
-        (8, "Sarah", "Bell", NULL, 8);
+       (8, "Sarah", "Bell", NULL, 8);
 
 

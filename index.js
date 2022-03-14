@@ -14,6 +14,12 @@ const db = mysql.createConnection({
     console.log('Connected to database.')
 );
 
+db.connect(function (err) {
+    if (err) {
+        return console.error('error:' + err.message);
+    }
+});
+
 //the main loop that controls the flow of the whole thing.
 const mainLoop = () => {
 
@@ -73,21 +79,21 @@ const mainLoop = () => {
 
 const viewAllDepartments = () => {
     db.query('SELECT * FROM departments', function (err, results) {
-        console.log(results);
+        console.table(results);
     });
 
 }
 
 const viewAllRoles = () => {
     db.query('SELECT roles.title, departments.department_name, roles.salary,  roles.id AS role_id FROM roles JOIN departments ON departments.id = roles.id;', function (err, results) {
-        console.log(results);
+        console.table(results);
     });
 
 }
 
 const viewAllEmployees = () => {
     db.query('SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.department_name, roles.salary, employees.first_name AS manager FROM employees JOIN roles ON employees.id = roles.id JOIN departments ON departments.id = roles.id;', function (err, results) {
-        console.log(results);
+        console.table(results);
     });
 
 }
@@ -103,8 +109,8 @@ const addDepartment = () => {
     ])
         .then((newDepartment) => {
 
-            db.query(`CREATE TABLE ${newDepartment} ( id INT NOT NULL AUTO_INCREMENT PRIMARY KEY );`, function (err, results) {
-                console.log(results);
+            db.query(`INSERT INTO departments (id, ${newDepartment})`, function (err, results) {
+                console.table(results);
             });
 
 
@@ -125,17 +131,21 @@ const addToRoles = () => {
             name: 'newSalary',
         },
         {
-            type: 'input',
+            type: 'list',
             message: 'What is the department for this role?',
-            name: 'newDept',
+            choices: ['Office Staff', 'Sales', 'Field Technicial Support', 'Accounting', 'Customer Service', 'Human Resources', 'IT', 'Security', 'quit'],
+            name: 'dept',
+
         }
     ])
-        //TODO test this query
-        //TODO this should add the department_id when then enter the department name
-        .then(({ newRole, newSalary, newDept }) => {
 
-            db.query(`INSERT INTO roles (id, ${newRole}, ${newSalary}, ${})`, function (err, results) {
-                console.log(results);
+
+        //TODO test this query
+        //TODO this should add the department_id when they enter the department name
+        .then(({ newRole, newSalary, dept }) => {
+
+            db.query(`INSERT INTO roles (id, ${newRole}, ${newSalary}, ${dept})`, function (err, results) {
+                console.table(results);
             });
 
 
@@ -156,8 +166,15 @@ const addToEmployees = () => {
             name: 'lastName',
         },
         {
+            type: 'list',
+            message: 'What is this employee\'s role?',
+            choices: ['Office Manager', 'Assistant Office Manger', 'Salesman', 'Receptionist', 'Technician', 'Lead Technician', 'Accountant', 'quit'],
+            name: 'dept',
+
+        },
+        {
             type: 'input',
-            message: 'What is the department id for this role?',
+            message: 'What is this employee\'s manager?',
             name: 'newDept',
         }
     ])
@@ -167,14 +184,15 @@ const addToEmployees = () => {
         .then(({ firstName, newSalary, newDept }) => {
 
             db.query(`INSERT INTO employees (id, ${firstName}, ${lastName}, manager_id, role_id)`, function (err, results) {
-                console.log(results);
+                console.table(results);
             });
 
 
         });
 };
 
-//TODO write this function. User can update an employee role then they select an employee to update and their new role and this information is updated in the database 
+
+//TODO write this function. User can update an employee role then they select an employee to update and their new role and this information is updated in the database by id
 const updateEmployeeRole = () => {
 
     inquirer.prompt([
@@ -204,3 +222,7 @@ const updateEmployeeRole = () => {
 
         });
 };
+
+
+
+mainLoop();
