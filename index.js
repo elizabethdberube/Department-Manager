@@ -49,12 +49,12 @@ const mainLoop = () => {
             }
 
             else if (selectToDo == "add a role") {
-                addRole().then(mainLoop);
+                addToRoles().then(mainLoop);
 
             }
 
             else if (selectToDo == "add an employee") {
-                addEmployee();
+                addToEmployees();
 
             }
 
@@ -78,24 +78,21 @@ const viewAllDepartments = () => {
 
 }
 
-
-
 const viewAllRoles = () => {
-    db.query('SELECT roles.title AS titles, roles.id AS roles-ID, departments.department_name AS Department, roles.salary As Salaries FROM roles JOIN departments ON roles.title = departments.id;', function (err, results) {
+    db.query('SELECT roles.title, departments.department_name, roles.salary,  roles.id AS role_id FROM roles JOIN departments ON departments.id = roles.id;', function (err, results) {
         console.log(results);
     });
 
 }
 
 const viewAllEmployees = () => {
-    db.query('SELECT employees.id AS employee, employees.first_name AS First-Name, employees.last_name AS Last-Name, roles.title AS Title, departments.department_name AS Department, roles.salary As Salaries, employees.manager_id AS Manager FROM employees JOIN roles ON employees.id = roles.id JOIN departments ON departments.id = roles.id;', function (err, results) {
+    db.query('SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.department_name, roles.salary, employees.first_name AS manager FROM employees JOIN roles ON employees.id = roles.id JOIN departments ON departments.id = roles.id;', function (err, results) {
         console.log(results);
     });
 
 }
 
 const addDepartment = () => {
-
 
     inquirer.prompt([
         {
@@ -106,10 +103,104 @@ const addDepartment = () => {
     ])
         .then((newDepartment) => {
 
-
+            db.query(`CREATE TABLE ${newDepartment} ( id INT NOT NULL AUTO_INCREMENT PRIMARY KEY );`, function (err, results) {
+                console.log(results);
+            });
 
 
         });
-}
+};
+
+const addToRoles = () => {
+
+    inquirer.prompt([
+        {
+            type: 'input',
+            message: 'What is the title of this role?',
+            name: 'newRole',
+        },
+        {
+            type: 'input',
+            message: 'What is te salary for this role?',
+            name: 'newSalary',
+        },
+        {
+            type: 'input',
+            message: 'What is the department for this role?',
+            name: 'newDept',
+        }
+    ])
+        //TODO test this query
+        //TODO this should add the department_id when then enter the department name
+        .then(({ newRole, newSalary, newDept }) => {
+
+            db.query(`INSERT INTO roles (id, ${newRole}, ${newSalary}, ${})`, function (err, results) {
+                console.log(results);
+            });
 
 
+        });
+};
+
+const addToEmployees = () => {
+
+    inquirer.prompt([
+        {
+            type: 'input',
+            message: 'What is the employee\'s first name?',
+            name: 'firstName',
+        },
+        {
+            type: 'input',
+            message: 'What is the employee\'s last name?',
+            name: 'lastName',
+        },
+        {
+            type: 'input',
+            message: 'What is the department id for this role?',
+            name: 'newDept',
+        }
+    ])
+        //TODO test this query
+        //TODO this should add the role_id when they enter the role title. 
+        //Also this should add the manager_id when they enter the manager name
+        .then(({ firstName, newSalary, newDept }) => {
+
+            db.query(`INSERT INTO employees (id, ${firstName}, ${lastName}, manager_id, role_id)`, function (err, results) {
+                console.log(results);
+            });
+
+
+        });
+};
+
+//TODO write this function. User can update an employee role then they select an employee to update and their new role and this information is updated in the database 
+const updateEmployeeRole = () => {
+
+    inquirer.prompt([
+        {
+            type: 'input',
+            message: 'What is the employee\'s role/title?',
+            name: 'firstName',
+        },
+        {
+            type: 'input',
+            message: 'What is the employee\'s last name?',
+            name: 'lastName',
+        },
+        {
+            type: 'input',
+            message: 'What is the department id for this role?',
+            name: 'newDept',
+        }
+    ])
+
+        .then(({ firstName, newSalary, newDept }) => {
+
+            db.query(`INSERT INTO employees (id, ${firstName}, ${lastName}, manager_id, role_id)`, function (err, results) {
+                console.log(results);
+            });
+
+
+        });
+};
