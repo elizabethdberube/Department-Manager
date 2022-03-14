@@ -169,19 +169,21 @@ const addToEmployees = () => {
             type: 'list',
             message: 'What is this employee\'s role?',
             choices: ['Office Manager', 'Assistant Office Manger', 'Salesman', 'Receptionist', 'Technician', 'Lead Technician', 'Accountant', 'quit'],
-            name: 'dept',
+            name: 'role',
 
         },
         {
-            type: 'input',
+            type: 'list',
             message: 'What is this employee\'s manager?',
-            name: 'newDept',
+            choices: ['George Smith', 'Rajesh Shah', 'Susan Ellison', 'David Emerson', 'Technician', 'Jennifer Day', 'Terri Adel', 'Tom Walk', 'Sarah Bell', 'quit'],
+            name: 'dept',
+
         }
     ])
         //TODO test this query
         //TODO this should add the role_id when they enter the role title. 
         //Also this should add the manager_id when they enter the manager name
-        .then(({ firstName, newSalary, newDept }) => {
+        .then(({ firstName, lastName, role, dept }) => {
 
             db.query(`INSERT INTO employees (id, ${firstName}, ${lastName}, manager_id, role_id)`, function (err, results) {
                 console.table(results);
