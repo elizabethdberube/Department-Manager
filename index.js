@@ -95,7 +95,7 @@ async function addToRoles() {
     let firstQuery = await connection.query(`SELECT id FROM departments WHERE department_name = (?);`, [dept]);
     let deptID = firstQuery[0][0].id;
     // query database
-    let results = await connection.query(`INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)`, [newRole, newSalary, deptID]);
+    let results = await connection.query(`INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?);`, [newRole, newSalary, deptID]);
 
 }
 
@@ -148,44 +148,48 @@ async function addToEmployees() {
     let secondQuery = await connection.query(`SELECT id FROM roles WHERE title = ?;`, [role]);
     let roleID = secondQuery[0][0].id;
     //Fix issue with adding employee to database
-    let results = await connection.query(`INSERT INTO employees (first_name, last_name, manager_id, role_id) VALUES (?, ?, ?, ?)`, [firstName, lastName, managerID, roleID]);
+    let results = await connection.query(`INSERT INTO employees (first_name, last_name, manager_id, role_id) VALUES (?, ?, ?, ?);`, [firstName, lastName, managerID, roleID]);
 
 }
 
 
 //TODO write this function. User can update an employee role then they select an employee to update and their new role and this information is updated in the database by id
 async function updateEmployeeRole() {
-    inquirer.prompt([
+    let answers = await inquirer.prompt([
         {
-            type: 'input',
-            message: 'What is the employee\'s role/title?',
-            name: 'firstName',
+            type: 'list',
+            message: 'Which employee\'s role would you like to update?',
+            choices: ['George Smith', 'Rajesh Shah', 'Susan Ellison', 'David Emerson', 'Jennifer Day', 'Terri Adel', 'Tom Walk', 'Sarah Bell', 'quit'],
+            name: 'employee',
+
         },
         {
-            type: 'input',
-            message: 'What is the employee\'s last name?',
-            name: 'lastName',
-        },
-        {
-            type: 'input',
-            message: 'What is the department id for this role?',
-            name: 'newDept',
+            type: 'list',
+            message: 'What is this new employee\'s role?',
+            choices: ['Office Manager', 'Assistant Office Manger', 'Salesman', 'Receptionist', 'Technician', 'Lead Technician', 'Accountant', 'quit'],
+            name: 'role',
+
         }
     ])
-    //TODO test this query
-    //TODO this should add the role_id when they enter the role title. 
-    //Also this should add the manager_id when they enter the manager name
-    const { firstName, lastName, newDept } = results;
+    //TODO fix this query
+    const { employee, role } = answers;
     const connection = await mysql.createConnection({
         host: 'localhost', user: 'root', password: '1234',
         database: 'department_db'
     });
+    let name_pieces = employee.split(' ');
+
+    let first_name = name_pieces[0];
+    let last_name = name_pieces[1];
+
     // query database
-    await connection.query(`INSERT INTO employees (id, ${firstName}, ${lastName}, manager_id, role_id)`);
+    let firstQuery = await connection.query(`SELECT id FROM roles WHERE title = ?;`, [role]);
+    let roleID = firstQuery[0][0].id;
+    let results = await connection.query(`UPDATE employees SET role_id = ? WHERE first_name = ?`, roleID, first_name);
 
     console.table(results);
 }
-
+`SELECT id FROM roles WHERE title = ?;`
 //the main loop that controls the flow of the whole thing.
 const mainLoop = () => {
 
