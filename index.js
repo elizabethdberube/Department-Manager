@@ -1,75 +1,70 @@
 const cTable = require('console.table');
 const inquirer = require('inquirer');
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise');
 
-const db = mysql.createConnection({
 
-    host: 'localhost',
+async function viewAllDepartments() {
 
-    user: 'root',
-
-    password: '1234',
-    database: 'department_db'
-},
-    console.log('Connected to database.')
-);
-
-const serverConnect = () => {
-    db.connect(function (err) {
-        if (err) {
-            return console.error('error:' + err.message);
-        }
-
+    // create the connection
+    const connection = await mysql.createConnection({
+        host: 'localhost', user: 'root', password: '1234',
+        database: 'department_db'
     });
+    // query database
+    let results = await connection.query('SELECT * FROM departments;');
+    console.table(results[0]);
 }
 
 
-const viewAllDepartments = () => {
-    db.query('SELECT * FROM departments', function (err, results) {
-        if (err) {
-            console.log(err);
-        }
-        console.table(results);
+async function viewAllRoles() {
 
+    // create connection
+    const connection = await mysql.createConnection({
+        host: 'localhost', user: 'root', password: '1234',
+        database: 'department_db'
     });
-
+    // query database
+    let results = await connection.query('SELECT roles.title, departments.department_name, roles.salary,  roles.id AS role_id FROM roles JOIN departments ON departments.id = roles.id;');
+    console.table(results[0]);
 }
 
-const viewAllRoles = () => {
-    db.query('SELECT roles.title, departments.department_name, roles.salary,  roles.id AS role_id FROM roles JOIN departments ON departments.id = roles.id;', function (err, results) {
-        console.table(results);
-    });
+async function viewAllEmployees() {
 
+    // create connection
+    const connection = await mysql.createConnection({
+        host: 'localhost', user: 'root', password: '1234',
+        database: 'department_db'
+    });
+    // query database
+    let results = await connection.query('SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.department_name, roles.salary, employees.first_name AS manager FROM employees JOIN roles ON employees.id = roles.id JOIN departments ON departments.id = roles.id;');
+    console.table(results[0]);
 }
 
-const viewAllEmployees = () => {
-    db.query('SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.department_name, roles.salary, employees.first_name AS manager FROM employees JOIN roles ON employees.id = roles.id JOIN departments ON departments.id = roles.id;', function (err, results) {
-        console.table(results);
-    });
 
-}
+async function addDepartment() {
 
-const addDepartment = () => {
-    return inquirer.prompt([
+    let answer = await inquirer.prompt([
         {
             type: 'input',
             message: 'What department would you like to add?',
             name: 'newDepartment',
         }
     ])
-        .then((newDepartment) => {
 
-            db.query(`INSERT INTO departments (id, ${newDepartment})`, function (err, results) {
-                console.table(results);
-            });
+    // create connection
+    const connection = await mysql.createConnection({
+        host: 'localhost', user: 'root', password: '1234',
+        database: 'department_db'
+    });
+    // query database
+    let { newDepartment } = answer;
+    let results = await connection.query(`INSERT INTO departments (department_name) VALUES (?);`, [newDepartment]);
+
+}
 
 
-        });
-};
-
-const addToRoles = () => {
-
-    return inquirer.prompt([
+async function addToRoles() {
+    let answers = await inquirer.prompt([
         {
             type: 'input',
             message: 'What is the title of this role?',
@@ -89,25 +84,23 @@ const addToRoles = () => {
         }
     ])
 
+    const { newRole, newSalary, dept } = answers;
 
-        //TODO test this query
-        //TODO this should add the department_id when they enter the department name
-        .then(({ newRole, newSalary, dept }) => {
-            db.query(`SELECT id FROM departments WHERE department_name = ${dept};`, function (err, results) {
-                console.log(results);
-            });
+    // create connection
+    const connection = await mysql.createConnection({
+        host: 'localhost', user: 'root', password: '1234',
+        database: 'department_db'
+    });
+    // query database
+    let firstQuery = await connection.query(`SELECT id FROM departments WHERE department_name = (?);`, [dept]);
+    let deptID = firstQuery[0][0].id;
+    // query database
+    let results = await connection.query(`INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)`, [newRole, newSalary, deptID]);
 
-            db.query(`INSERT INTO roles (id, ${newRole}, ${newSalary}, ${dept})`, function (err, results) {
-                console.table(results);
-            });
+}
 
-
-        });
-};
-
-const addToEmployees = () => {
-
-    return inquirer.prompt([
+async function addToEmployees() {
+    let answers = await inquirer.prompt([
         {
             type: 'input',
             message: 'What is the employee\'s first name?',
@@ -118,39 +111,51 @@ const addToEmployees = () => {
             message: 'What is the employee\'s last name?',
             name: 'lastName',
         },
+
+        {
+            type: 'list',
+            message: 'What is this employee\'s manager?',
+            choices: ['George Smith', 'Rajesh Shah', 'Susan Ellison', 'David Emerson', 'Jennifer Day', 'Terri Adel', 'Tom Walk', 'Sarah Bell', 'quit'],
+            name: 'manager',
+
+        },
+
         {
             type: 'list',
             message: 'What is this employee\'s role?',
             choices: ['Office Manager', 'Assistant Office Manger', 'Salesman', 'Receptionist', 'Technician', 'Lead Technician', 'Accountant', 'quit'],
             name: 'role',
 
-        },
-        {
-            type: 'list',
-            message: 'What is this employee\'s manager?',
-            choices: ['George Smith', 'Rajesh Shah', 'Susan Ellison', 'David Emerson', 'Technician', 'Jennifer Day', 'Terri Adel', 'Tom Walk', 'Sarah Bell', 'quit'],
-            name: 'dept',
-
         }
     ])
-        //TODO test this query
-        //TODO this should add the role_id when they enter the role title. 
-        //Also this should add the manager_id when they enter the manager name
-        .then(({ firstName, lastName, role, dept }) => {
-
-            db.query(`INSERT INTO employees (id, ${firstName}, ${lastName}, manager_id, role_id)`, function (err, results) {
-                console.table(results);
-            });
 
 
-        });
-};
+    let { firstName, lastName, role, manager } = answers;
+    // create connection
+    const connection = await mysql.createConnection({
+        host: 'localhost', user: 'root', password: '1234',
+        database: 'department_db'
+    });
+    let name_pieces = manager.split(' ');
+
+    let first_name = name_pieces[0];
+    let last_name = name_pieces[1];
+
+    // query database
+    let firstQuery = await connection.query(`SELECT id FROM employees WHERE first_name = ?;`, [first_name]);
+    let managerID = firstQuery[0][0].id;
+    // query database
+    let secondQuery = await connection.query(`SELECT id FROM roles WHERE title = ?;`, [role]);
+    let roleID = secondQuery[0][0].id;
+    //Fix issue with adding employee to database
+    let results = await connection.query(`INSERT INTO employees (first_name, last_name, manager_id, role_id) VALUES (?, ?, ?, ?)`, [firstName, lastName, managerID, roleID]);
+
+}
 
 
 //TODO write this function. User can update an employee role then they select an employee to update and their new role and this information is updated in the database by id
-const updateEmployeeRole = () => {
-
-    return inquirer.prompt([
+async function updateEmployeeRole() {
+    inquirer.prompt([
         {
             type: 'input',
             message: 'What is the employee\'s role/title?',
@@ -167,16 +172,19 @@ const updateEmployeeRole = () => {
             name: 'newDept',
         }
     ])
+    //TODO test this query
+    //TODO this should add the role_id when they enter the role title. 
+    //Also this should add the manager_id when they enter the manager name
+    const { firstName, lastName, newDept } = results;
+    const connection = await mysql.createConnection({
+        host: 'localhost', user: 'root', password: '1234',
+        database: 'department_db'
+    });
+    // query database
+    await connection.query(`INSERT INTO employees (id, ${firstName}, ${lastName}, manager_id, role_id)`);
 
-        .then(({ firstName, newSalary, newDept }) => {
-
-            db.query(`INSERT INTO employees (id, ${firstName}, ${lastName}, manager_id, role_id)`, function (err, results) {
-                console.log(results);
-            });
-
-
-        });
-};
+    console.table(results);
+}
 
 //the main loop that controls the flow of the whole thing.
 const mainLoop = () => {
@@ -218,7 +226,7 @@ const mainLoop = () => {
             }
 
             else if (selectToDo == "add an employee") {
-                addToEmployees();
+                addToEmployees().then(mainLoop);
 
             }
 
@@ -235,6 +243,6 @@ const mainLoop = () => {
         });
 }
 
-serverConnect().then(() => {
-    mainLoop();
-});
+
+mainLoop();
+
