@@ -198,7 +198,7 @@ async function updateEmployeeRole() {
         }
 
     ])
-    //TODO fix this query
+
     const { employee, role } = answers;
     const connection = await mysql.createConnection({
         host: 'localhost', user: 'root', password: '1234',
@@ -221,7 +221,8 @@ async function updateEmployeeRole() {
 
 }
 
-// function for updating employee's
+
+// function for updating employee's manager
 async function updateEmployeesManager() {
     let answers = await inquirer.prompt([
         {
@@ -241,7 +242,6 @@ async function updateEmployeesManager() {
 
     ])
 
-    //TODO fix this query
     const { employee, manager } = answers;
     const connection = await mysql.createConnection({
         host: 'localhost', user: 'root', password: '1234',
