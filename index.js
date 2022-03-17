@@ -2,7 +2,7 @@ const cTable = require('console.table');
 const inquirer = require('inquirer');
 const mysql = require('mysql2/promise');
 
-
+// loop for getting employee names
 async function getEmployeesList() {
     // create the connection
     const connection = await mysql.createConnection({
@@ -12,6 +12,7 @@ async function getEmployeesList() {
     // query database
     let results = await connection.query('SELECT * FROM employees;');
     let employeeNames = [];
+    // loop
     results[0].forEach(obj => {
         let name = obj.first_name + " " + obj.last_name;
 
@@ -19,6 +20,46 @@ async function getEmployeesList() {
 
     })
     return (employeeNames);
+}
+
+// loop for getting role
+async function getRoleList() {
+    // create the connection
+    const connection = await mysql.createConnection({
+        host: 'localhost', user: 'root', password: '1234',
+        database: 'department_db'
+    });
+    // query database
+    let results = await connection.query('SELECT * FROM roles;');
+    let roleList = [];
+    // loop
+    results[0].forEach(obj => {
+        let role = obj.title;
+
+        roleList.push(role);
+
+    })
+    return (roleList);
+}
+
+// loop for getting departments
+async function getDepartmentList() {
+    // create the connection
+    const connection = await mysql.createConnection({
+        host: 'localhost', user: 'root', password: '1234',
+        database: 'department_db'
+    });
+    // query database
+    let results = await connection.query('SELECT * FROM departments;');
+    let departmentList = [];
+    // loop
+    results[0].forEach(obj => {
+        let department = obj.department_name;
+
+        departmentList.push(department);
+
+    })
+    return (departmentList);
 }
 
 // function for viewing all departments
@@ -100,7 +141,7 @@ async function addToRoles() {
         {
             type: 'list',
             message: 'What is the department for this role?',
-            choices: ['Office Staff', 'Sales', 'Field Technicial Support', 'Accounting', 'Customer Service', 'Human Resources', 'IT', 'Security', 'quit'],
+            choices: await getDepartmentList(),
             name: 'dept',
 
         }
@@ -147,7 +188,7 @@ async function addToEmployees() {
         {
             type: 'list',
             message: 'What is this employee\'s role?',
-            choices: ['Office Manager', 'Assistant Office Manger', 'Salesman', 'Receptionist', 'Technician', 'Lead Technician', 'Accountant', 'quit'],
+            choices: await getRoleList(),
             name: 'role',
 
         }
@@ -166,7 +207,7 @@ async function addToEmployees() {
     let last_name = name_pieces[1];
 
     // query database
-    let firstQuery = await connection.query(`SELECT id FROM employees WHERE first_name = ?;`, [first_name]);
+    let firstQuery = await connection.query(`SELECT id FROM employees WHERE first_name = ? AND last_name = ?;`, [first_name, last_name]);
     let managerID = firstQuery[0][0].id;
 
     // query database
@@ -192,7 +233,7 @@ async function updateEmployeeRole() {
         {
             type: 'list',
             message: 'What is this new employee\'s role?',
-            choices: ['Office Manager', 'Assistant Office Manger', 'Salesman', 'Receptionist', 'Technician', 'Lead Technician', 'Accountant', 'quit'],
+            choices: await getRoleList(),
             name: 'role',
 
         }
@@ -253,7 +294,7 @@ async function updateEmployeesManager() {
     let last_name = name_pieces[1];
 
     // query database
-    let firstQuery = await connection.query(`SELECT id FROM employees WHERE first_name = ?;`, [first_name]);
+    let firstQuery = await connection.query(`SELECT id FROM employees WHERE first_name = ? AND last_name = ? ;`, [first_name, last_name]);
     let employeeID = firstQuery[0][0].id;
 
     let manager_pieces = manager.split(' ');
@@ -267,6 +308,77 @@ async function updateEmployeesManager() {
     let results = await connection.query(`UPDATE employees SET manager_id = ? WHERE id = ?;`, [managerID, employeeID]);
 }
 
+//TODO fix query
+// function to employee by manager
+async function viewByManager() {
+    let answers = await inquirer.prompt([
+
+        {
+            type: 'list',
+            message: 'Select a manager\'s name to view employee\'s by their manager',
+            choices: await getEmployeesList(),
+            name: 'manager',
+
+        }
+    ])
+
+    const { manager } = answers;
+
+    // create connection
+    const connection = await mysql.createConnection({
+        host: 'localhost', user: 'root', password: '1234',
+        database: 'department_db'
+    });
+    let name_pieces = manager.split(' ');
+
+    let first_name = name_pieces[0];
+    let last_name = name_pieces[1];
+
+    // query database
+    let firstQuery = await connection.query(`SELECT id FROM employees WHERE first_name = ? AND last_name = ?;`, [first_name, last_name]);
+    let managerID = firstQuery[0][0].id;
+    console.log(managerID);
+    let secondQuery = await connection.query(`SELECT id FROM employees WHERE manager_id = ? AND employees.id = employees.manager_id;`, [managerID]);
+    let employees = secondQuery;
+    console.log(secondQuery);
+
+
+    //   console.table(results[0]);
+}
+
+//TODO finish query
+// function to employee by manager
+async function viewByDepartment() {
+    let answers = await inquirer.prompt([
+
+        {
+            type: 'list',
+            message: 'Select a department\'s name to view employee\'s by their department',
+            choices: await getDepartmentList(),
+            name: 'department',
+
+        }
+    ])
+
+    const { department } = answers;
+
+    // create connection
+    const connection = await mysql.createConnection({
+        host: 'localhost', user: 'root', password: '1234',
+        database: 'department_db'
+    });
+
+    // query database
+    let firstQuery = await connection.query(`SELECT id FROM departments WHERE department_name = ?;`, [department]);
+    let departmentID = firstQuery[0][0].id;
+    let secondQuery = await connection.query(`SELECT id FROM employees WHERE manager_id = ? AS employee ON employees.id = employees.manager_id;`, [departmentID]);
+    let employees = secondQuery;
+    console.log(secondQuery);
+
+
+    //   console.table(results[0]);
+}
+
 //the main loop that controls the flow of the whole thing.
 const mainLoop = () => {
 
@@ -275,7 +387,7 @@ const mainLoop = () => {
         {
             type: 'list',
             message: 'What would like to do?',
-            choices: ['view all departments', 'view all roles', 'view all employees', 'view employees by manager', 'add a department', 'add a role', 'add an employee', 'update an employee\'s role', 'update employee\'s manager', 'quit'],
+            choices: ['view all departments', 'view all roles', 'view all employees', 'view employees by manager', 'view employees by department', 'add a department', 'add a role', 'add an employee', 'update an employee\'s role', 'update employee\'s manager', 'quit'],
             name: 'selectToDo',
 
         }
@@ -293,6 +405,15 @@ const mainLoop = () => {
 
             else if (selectToDo == "view all employees") {
                 viewAllEmployees().then(mainLoop);
+
+            }
+            else if (selectToDo == "view employees by manager") {
+                viewByManager().then(mainLoop);
+
+            }
+
+            else if (selectToDo == "view employees by department") {
+                viewByDepartment().then(mainLoop);
 
             }
 
