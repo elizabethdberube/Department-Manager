@@ -102,7 +102,7 @@ async function viewAllEmployees() {
 }
 
 
-// function to add deparments
+// function to add deparment
 async function addDepartment() {
 
     let answer = await inquirer.prompt([
@@ -176,7 +176,6 @@ async function addToEmployees() {
             message: 'What is the employee\'s last name?',
             name: 'lastName',
         },
-
         {
             type: 'list',
             message: 'What is this employee\'s manager?',
@@ -184,7 +183,6 @@ async function addToEmployees() {
             name: 'manager',
 
         },
-
         {
             type: 'list',
             message: 'What is this employee\'s role?',
@@ -261,7 +259,6 @@ async function updateEmployeeRole() {
     let results = await connection.query(`UPDATE employees SET role_id = ? WHERE id = ?;`, [roleID, employeeID]);
 
 }
-
 
 // function for updating employee's manager
 async function updateEmployeesManager() {
@@ -354,7 +351,6 @@ async function viewByManager() {
     }
 }
 
-//TODO finish query
 // function to view employee by department
 async function viewByDepartment() {
     let answers = await inquirer.prompt([
@@ -385,7 +381,6 @@ async function viewByDepartment() {
     console.table(employees);
 
 }
-
 
 // function for deleting roles
 async function deleteRole() {
@@ -476,82 +471,115 @@ async function deleteEmployee() {
 
 }
 
+// function to view budget of department
+async function sumSalaries() {
+    let answers = await inquirer.prompt([
+
+        {
+            type: 'list',
+            message: 'Select a department to view budget',
+            choices: await getDepartmentList(),
+            name: 'department',
+
+        }
+    ])
+
+    const { department } = answers;
+
+    // create connection
+    const connection = await mysql.createConnection({
+        host: 'localhost', user: 'root', password: '1234',
+        database: 'department_db'
+    });
+    ;
+
+    // query database
+    let firstQuery = await connection.query(`SELECT id FROM departments WHERE department_name = ?;`, [department]);
+    let departmentID = firstQuery[0][0].id;
+    let secondQuery = await connection.query(`SELECT SUM(salary) AS Total_Budget FROM roles WHERE department_id = ?;`, [departmentID]);
+    let salaries = secondQuery[0];
+    console.table(salaries);
+
+}
 
 //the main loop that controls the flow of the whole thing.
 const mainLoop = () => {
-
 
     inquirer.prompt([
         {
             type: 'list',
             message: 'What would like to do?',
-            choices: ['view all departments', 'view all roles', 'view all employees', 'view employees by manager', 'view employees by department', 'add a department', 'add a role', 'add an employee', 'update an employee\'s role', 'update employee\'s manager', 'delete a role', 'delete a department', 'delete an employee', 'quit'],
+            choices: ['View all departments', 'View all roles', 'View all employees', 'View employees by manager', 'View employees by department', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee\'s role', 'Update employee\'s manager', 'Delete a role', 'Delete a department', 'Delete an employee', 'View budget of department', 'quit'],
             name: 'selectToDo',
 
         }
     ])
         .then(({ selectToDo }) => {
-            if (selectToDo == 'view all departments') {
+            if (selectToDo == 'View all departments') {
                 viewAllDepartments().then(mainLoop);
 
             }
 
-            else if (selectToDo == "view all roles") {
+            else if (selectToDo == "View all roles") {
                 viewAllRoles().then(mainLoop);
 
             }
 
-            else if (selectToDo == "view all employees") {
+            else if (selectToDo == "View all employees") {
                 viewAllEmployees().then(mainLoop);
 
             }
-            else if (selectToDo == "view employees by manager") {
+            else if (selectToDo == "View employees by manager") {
                 viewByManager().then(mainLoop);
 
             }
 
-            else if (selectToDo == "view employees by department") {
+            else if (selectToDo == "View employees by department") {
                 viewByDepartment().then(mainLoop);
 
             }
 
-            else if (selectToDo == "add a department") {
+            else if (selectToDo == "Add a department") {
                 addDepartment().then(mainLoop);
 
             }
 
-            else if (selectToDo == "add a role") {
+            else if (selectToDo == "Add a role") {
                 addToRoles().then(mainLoop);
 
             }
 
-            else if (selectToDo == "add an employee") {
+            else if (selectToDo == "Add an employee") {
                 addToEmployees().then(mainLoop);
 
             }
 
-            else if (selectToDo == "update an employee\'s role") {
+            else if (selectToDo == "Update an employee\'s role") {
                 updateEmployeeRole().then(mainLoop);
 
             }
 
-            else if (selectToDo == "update employee\'s manager") {
+            else if (selectToDo == "Update employee\'s manager") {
                 updateEmployeesManager().then(mainLoop);
 
             }
 
-            else if (selectToDo == "delete a role") {
+            else if (selectToDo == "Delete a role") {
                 deleteRole().then(mainLoop);
 
             }
 
-            else if (selectToDo == "delete a department") {
+            else if (selectToDo == "Delete a department") {
                 deleteDepartment().then(mainLoop);
 
             }
 
-            else if (selectToDo == "delete an employee") {
+            else if (selectToDo == "Delete an employee") {
                 deleteEmployee().then(mainLoop);
+
+            }
+            else if (selectToDo == "View budget of department") {
+                sumSalaries().then(mainLoop);
 
             }
 
