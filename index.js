@@ -308,7 +308,6 @@ async function updateEmployeesManager() {
     let results = await connection.query(`UPDATE employees SET manager_id = ? WHERE id = ?;`, [managerID, employeeID]);
 }
 
-//TODO employee by manager table needs description. Also needs catch for if there is no manager
 // function to employee by manager
 async function viewByManager() {
     let answers = await inquirer.prompt([
@@ -341,18 +340,22 @@ async function viewByManager() {
     let employee = secondQuery;
 
     let employeeNames = [];
-    // loop
-    employee[0].forEach(obj => {
-        let name = obj.first_name + " " + obj.last_name;
+    if (employee[0].length == 0) {
+        console.log('sorry that is not a manager');
+    } else {
+        // loop
+        employee[0].forEach(obj => {
+            let name = obj.first_name + " " + obj.last_name;
 
-        employeeNames.push(name);
+            employeeNames.push(name);
 
-    })
-    console.table(employeeNames);
+        })
+        console.table(employeeNames);
+    }
 }
 
 //TODO finish query
-// function to employee by manager
+// function to view employee by department
 async function viewByDepartment() {
     let answers = await inquirer.prompt([
 
@@ -373,26 +376,16 @@ async function viewByDepartment() {
         database: 'department_db'
     });
     ;
-    //1,2,4,6
+
     // query database
     let firstQuery = await connection.query(`SELECT id FROM departments WHERE department_name = ?;`, [department]);
     let departmentID = firstQuery[0][0].id;
-    console.log(firstQuery);
-    let secondQuery = await connection.query(`SELECT roles.department_id, roles.id, employees.id, FROM roles JOIN roles ON roles.department_id = roles.id, JOIN employees ON roles.id = roles_id, JOIN employees ON roles_id = employees.first_name AND employees.last_name;`, [departmentID]);
-    let employees = secondQuery;
-    console.log(employees);
-    // let employeeNames = [];
-    // loop
-    // employees[0].forEach(obj => {
-    //     let name = obj.first_name + " " + obj.last_name;
+    let secondQuery = await connection.query(`SELECT employees.id, employees.first_name, employees.last_name FROM employees JOIN roles ON roles.id = employees.id WHERE department_id = ?;`, [departmentID]);
+    let employees = secondQuery[0];
+    console.table(employees);
 
-    //     employeeNames.push(name);
-
-    // })
-    // console.log(employeeNames);
 }
 
-//   console.table(results[0]);
 
 // function for deleting roles
 async function deleteRole() {
