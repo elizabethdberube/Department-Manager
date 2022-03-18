@@ -84,7 +84,7 @@ async function viewAllRoles() {
         database: 'department_db'
     });
     // query database
-    let results = await connection.query('SELECT roles.title, departments.department_name, roles.salary,  roles.id AS role_id FROM roles JOIN departments ON departments.id = roles.department_id;');
+    let results = await connection.query('SELECT roles.title,  roles.id AS role_id, departments.department_name, roles.salary FROM roles JOIN departments ON departments.id = roles.department_id;');
     console.table(results[0]);
 }
 
@@ -97,7 +97,7 @@ async function viewAllEmployees() {
         database: 'department_db'
     });
     // query database
-    let results = await connection.query('SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.department_name, roles.salary, manager.first_name AS manager FROM employees JOIN employees AS manager ON manager.id = employees.manager_id JOIN roles ON roles.id = employees.role_id JOIN departments ON departments.id = roles.department_id;');
+    let results = await connection.query('SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.department_name, roles.salary, manager.first_name AS manager FROM employees  LEFT OUTER JOIN employees AS manager ON manager.id = employees.manager_id JOIN roles ON roles.id = employees.role_id JOIN departments ON departments.id = roles.department_id;');
     console.table(results[0]);
 }
 
@@ -125,7 +125,7 @@ async function addDepartment() {
 
 }
 
-// function to add roles
+// function to add role
 async function addToRoles() {
     let answers = await inquirer.prompt([
         {
@@ -163,7 +163,7 @@ async function addToRoles() {
 
 }
 
-// function to add employees
+// function to add employee
 async function addToEmployees() {
     let answers = await inquirer.prompt([
         {
@@ -250,6 +250,7 @@ async function updateEmployeeRole() {
 
     // query database
     let firstQuery = await connection.query(`SELECT id FROM employees WHERE first_name = ? AND last_name = ? ;`, [first_name, last_name]);
+    //console.log(firstQuery);
     let employeeID = firstQuery[0][0].id;
 
     // query database
@@ -305,7 +306,7 @@ async function updateEmployeesManager() {
     let results = await connection.query(`UPDATE employees SET manager_id = ? WHERE id = ?;`, [managerID, employeeID]);
 }
 
-// function to employee by manager
+// function to view employee by manager
 async function viewByManager() {
     let answers = await inquirer.prompt([
 
@@ -378,11 +379,12 @@ async function viewByDepartment() {
     let departmentID = firstQuery[0][0].id;
     let secondQuery = await connection.query(`SELECT employees.id, employees.first_name, employees.last_name FROM employees JOIN roles ON roles.id = employees.id WHERE department_id = ?;`, [departmentID]);
     let employees = secondQuery[0];
+
     console.table(employees);
 
 }
 
-// function for deleting roles
+// function for deleting a role
 async function deleteRole() {
     let answers = await inquirer.prompt([
         {
@@ -406,11 +408,11 @@ async function deleteRole() {
     let roleID = firstQuery[0][0].id;
     // query database
     let secondQuery = await connection.query(`DELETE FROM roles WHERE id = ?;`, [roleID]);
-    console.log("selectd role has been deleted");
+    console.table("Selectd role has been deleted");
 
 }
 
-// function deletes department
+// function deletes a department
 async function deleteDepartment() {
     let answers = await inquirer.prompt([
         {
@@ -434,11 +436,11 @@ async function deleteDepartment() {
     let departmentID = firstQuery[0][0].id;
     // query database
     let secondQuery = await connection.query(`DELETE FROM departments WHERE id = ?;`, [departmentID]);
-    console.log("selected department has been deleted");
+    console.table("selected department has been deleted");
 
 }
 
-// function deletes employee
+// function deletes an employee
 async function deleteEmployee() {
     let answers = await inquirer.prompt([
         {
@@ -467,11 +469,11 @@ async function deleteEmployee() {
     let employeeID = firstQuery[0][0].id;
     // query database
     let secondQuery = await connection.query(`DELETE FROM employees WHERE id = ?;`, [employeeID]);
-    console.log("selected employee has been deleted");
+    console.table("selected employee has been deleted");
 
 }
 
-// function to view budget of department
+// function to view budget of a department
 async function sumSalaries() {
     let answers = await inquirer.prompt([
 

@@ -11,7 +11,7 @@ VALUES (1, "Office Staff"),
 
 INSERT INTO roles (id, title, salary, department_id)
 VALUES (1, "Office Manager", 85000.00, 1),
-       (2, "Assistant Office Manger", 65000.00, 1),
+       (2, "Assistant Office Manager", 65000.00, 1),
        (3, "Salesman", 90000.00, 2),
        (4, "Receptionist", 35000.00, 1),
        (5, "Technician", 55000.00, 3),
