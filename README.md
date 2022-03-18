@@ -1,7 +1,5 @@
 # Department-Manager
 
-# Taking-Note
-
 ## Description
 Some features of this command line application.
 1. Users can select the option to view all departments, view all roles or view all departments.
