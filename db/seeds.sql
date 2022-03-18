@@ -15,7 +15,7 @@ VALUES (1, "Office Manager", 85000.00, 1),
        (3, "Salesman", 90000.00, 2),
        (4, "Receptionist", 35000.00, 1),
        (5, "Technician", 55000.00, 3),
-       (6, "Technician", 55000.00, 3),
+       (6, "HR", 75000.00, 1),
        (7, "Lead Technician", 65000.00, 3),
        (8, "Accountant", 50000.00, 4);
 

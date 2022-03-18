@@ -308,7 +308,7 @@ async function updateEmployeesManager() {
     let results = await connection.query(`UPDATE employees SET manager_id = ? WHERE id = ?;`, [managerID, employeeID]);
 }
 
-//TODO fix query
+//TODO employee by manager table needs description. Also needs catch for if there is no manager
 // function to employee by manager
 async function viewByManager() {
     let answers = await inquirer.prompt([
@@ -337,13 +337,18 @@ async function viewByManager() {
     // query database
     let firstQuery = await connection.query(`SELECT id FROM employees WHERE first_name = ? AND last_name = ?;`, [first_name, last_name]);
     let managerID = firstQuery[0][0].id;
-    console.log(managerID);
-    let secondQuery = await connection.query(`SELECT id FROM employees WHERE manager_id = ? AND employees.id = employees.manager_id;`, [managerID]);
-    let employees = secondQuery;
-    console.log(secondQuery);
+    let secondQuery = await connection.query(`SELECT first_name, last_name FROM employees WHERE manager_id = ?;`, [managerID]);
+    let employee = secondQuery;
 
+    let employeeNames = [];
+    // loop
+    employee[0].forEach(obj => {
+        let name = obj.first_name + " " + obj.last_name;
 
-    //   console.table(results[0]);
+        employeeNames.push(name);
+
+    })
+    console.table(employeeNames);
 }
 
 //TODO finish query
@@ -367,17 +372,117 @@ async function viewByDepartment() {
         host: 'localhost', user: 'root', password: '1234',
         database: 'department_db'
     });
+    ;
+    //1,2,4,6
+    // query database
+    let firstQuery = await connection.query(`SELECT id FROM departments WHERE department_name = ?;`, [department]);
+    let departmentID = firstQuery[0][0].id;
+    console.log(firstQuery);
+    let secondQuery = await connection.query(`SELECT roles.department_id, roles.id, employees.id, FROM roles JOIN roles ON roles.department_id = roles.id, JOIN employees ON roles.id = roles_id, JOIN employees ON roles_id = employees.first_name AND employees.last_name;`, [departmentID]);
+    let employees = secondQuery;
+    console.log(employees);
+    // let employeeNames = [];
+    // loop
+    // employees[0].forEach(obj => {
+    //     let name = obj.first_name + " " + obj.last_name;
+
+    //     employeeNames.push(name);
+
+    // })
+    // console.log(employeeNames);
+}
+
+//   console.table(results[0]);
+
+// function for deleting roles
+async function deleteRole() {
+    let answers = await inquirer.prompt([
+        {
+            type: 'list',
+            message: 'which role would you like to delete?',
+            choices: await getRoleList(),
+            name: 'role',
+
+        }
+
+    ])
+
+    const { role } = answers;
+    const connection = await mysql.createConnection({
+        host: 'localhost', user: 'root', password: '1234',
+        database: 'department_db'
+    });
+
+    // query database
+    let firstQuery = await connection.query(`SELECT id FROM roles WHERE title = ?;`, [role]);
+    let roleID = firstQuery[0][0].id;
+    // query database
+    let secondQuery = await connection.query(`DELETE FROM roles WHERE id = ?;`, [roleID]);
+    console.log("selectd role has been deleted");
+
+}
+
+// function deletes department
+async function deleteDepartment() {
+    let answers = await inquirer.prompt([
+        {
+            type: 'list',
+            message: 'Which department would you like to delete?',
+            choices: await getDepartmentList(),
+            name: 'department',
+
+        }
+
+    ])
+
+    const { department } = answers;
+    const connection = await mysql.createConnection({
+        host: 'localhost', user: 'root', password: '1234',
+        database: 'department_db'
+    });
 
     // query database
     let firstQuery = await connection.query(`SELECT id FROM departments WHERE department_name = ?;`, [department]);
     let departmentID = firstQuery[0][0].id;
-    let secondQuery = await connection.query(`SELECT id FROM employees WHERE manager_id = ? AS employee ON employees.id = employees.manager_id;`, [departmentID]);
-    let employees = secondQuery;
-    console.log(secondQuery);
+    // query database
+    let secondQuery = await connection.query(`DELETE FROM departments WHERE id = ?;`, [departmentID]);
+    console.log("selected department has been deleted");
 
-
-    //   console.table(results[0]);
 }
+
+// function deletes employee
+async function deleteEmployee() {
+    let answers = await inquirer.prompt([
+        {
+            type: 'list',
+            message: 'Which employee would you like to delete?',
+            choices: await getEmployeesList(),
+            name: 'employee',
+
+        }
+
+    ])
+
+    const { employee } = answers;
+    const connection = await mysql.createConnection({
+        host: 'localhost', user: 'root', password: '1234',
+        database: 'department_db'
+    });
+
+    let name_pieces = employee.split(' ');
+
+    let first_name = name_pieces[0];
+    let last_name = name_pieces[1];
+
+    // query database
+    let firstQuery = await connection.query(`SELECT id FROM employees WHERE first_name = ? AND last_name = ?;`, [first_name, last_name]);
+    let employeeID = firstQuery[0][0].id;
+    // query database
+    let secondQuery = await connection.query(`DELETE FROM employees WHERE id = ?;`, [employeeID]);
+    console.log("selected employee has been deleted");
+
+}
+
 
 //the main loop that controls the flow of the whole thing.
 const mainLoop = () => {
@@ -387,7 +492,7 @@ const mainLoop = () => {
         {
             type: 'list',
             message: 'What would like to do?',
-            choices: ['view all departments', 'view all roles', 'view all employees', 'view employees by manager', 'view employees by department', 'add a department', 'add a role', 'add an employee', 'update an employee\'s role', 'update employee\'s manager', 'quit'],
+            choices: ['view all departments', 'view all roles', 'view all employees', 'view employees by manager', 'view employees by department', 'add a department', 'add a role', 'add an employee', 'update an employee\'s role', 'update employee\'s manager', 'delete a role', 'delete a department', 'delete an employee', 'quit'],
             name: 'selectToDo',
 
         }
@@ -439,6 +544,21 @@ const mainLoop = () => {
 
             else if (selectToDo == "update employee\'s manager") {
                 updateEmployeesManager().then(mainLoop);
+
+            }
+
+            else if (selectToDo == "delete a role") {
+                deleteRole().then(mainLoop);
+
+            }
+
+            else if (selectToDo == "delete a department") {
+                deleteDepartment().then(mainLoop);
+
+            }
+
+            else if (selectToDo == "delete an employee") {
+                deleteEmployee().then(mainLoop);
 
             }
 

@@ -1,17 +1,8 @@
-SELECT * FROM departments;
 
-SELECT
-employees.id, employees.first_name, employees.last_name, roles.title, departments.department_name, roles.salary, employees.first_name AS manager
-FROM employees
-JOIN roles 
-ON employees.id = roles.id
-JOIN departments
-ON departments.id = roles.id;
+
+
+SELECT roles.department_id, roles.id, employees.id, FROM roles JOIN roles ON roles.department_id = roles.id, JOIN employees ON roles.id = roles_id, JOIN employees ON roles_id = employees.first_name AND employees.last_name.
 
 
 
 
-
-
-
-SELECT id FROM employees WHERE manager_id = 1 AS employee FROM employees JOIN employees AS employee ON employees.id = employees.manager_id;
