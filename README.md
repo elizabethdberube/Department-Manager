@@ -27,7 +27,7 @@ Some features of this command line application.
 
 ## Usage
 
-For saving notes.
+For keeping track of departments and employees.
 
 ## How to Contribute
 
