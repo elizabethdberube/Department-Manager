@@ -4,9 +4,13 @@
 
 Some features of this command line application.
 1. Users can select the option to view all departments, view all roles or view all departments.
+
 2. Users can also choose to view employees by manager and view employees by department.
+
 3. There are options to add roles, employees or departments.
+
 4. Employee’s role and manager can be updated easily.
+
 5. Roles, departments and employees can be deleted.
 
 ---
