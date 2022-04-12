@@ -49,5 +49,6 @@ liz@durableprogramming.com
 
 [Walkthrough Video](https://drive.google.com/file/d/1M4ke8uAuSUm5aVSd0nMQ85TcLveKc-pO/view) 
 
+![image](Screenshot2.png)
 
 [![A video thumbnail shows this command-line application](./Screenshot.png)](https://drive.google.com/file/d/1M4ke8uAuSUm5aVSd0nMQ85TcLveKc-pO/view)
