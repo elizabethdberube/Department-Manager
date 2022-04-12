@@ -27,6 +27,8 @@ Some features of this command line application.
 
 * [Questions](#questions)
 
+* [Technologies](#technologies)
+
 ---
 
 
@@ -45,6 +47,14 @@ If you have nay questions about this project then you can contact me directly at
 liz@durableprogramming.com
 
 ----
+
+## Technologies
+
+Technologies used in this project:
+
+* cTable
+* inquirer
+* Mysql2
 
 ## Links
 
