@@ -44,7 +44,7 @@ Pull requests. Feel free to open a pull requst on my GitHub.
 
 If you have nay questions about this project then you can contact me directly at 
 
-liz@durableprogramming.com
+elizabethdberube@gmail.com
 
 ----
 
